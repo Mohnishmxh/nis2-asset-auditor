@@ -1,27 +1,33 @@
-# Use an official, deterministic slim Python base image to minimize attack surface
+# Stage 1: Build the Smart Frontend SPA
+FROM node:22-alpine AS frontend-builder
+WORKDIR /build
+COPY frontend/package*.json ./
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Slim Debian/Python runtime with Nmap
 FROM python:3.12-slim-bookworm
 
-# Prevent Python from writing .pyc files and enable unbuffered logging
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install the Nmap binary in a single layer and clean apt caches
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nmap \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies first to leverage Docker layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application source code and create reports directory
 COPY src/ ./src/
 COPY main.py .
-RUN mkdir -p /app/reports
+COPY --from=frontend-builder /build/dist ./frontend/dist
+RUN mkdir -p /app/reports /app/data
 
-# Define the CLI entrypoint and default arguments
+EXPOSE 8000
+
 ENTRYPOINT ["python", "main.py"]
-CMD ["-t", "127.0.0.1", "-p", "22,80,443,8000"]
+CMD ["serve", "--host", "0.0.0.0", "--port", "8000"]

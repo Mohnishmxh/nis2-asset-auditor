@@ -1,0 +1,286 @@
+"""Built-in realistic benchmark and simulation scenarios for offline evaluation & demos."""
+
+from __future__ import annotations
+
+from copy import deepcopy
+from typing import Any, Dict, List
+
+
+SIMULATION_SCENARIOS: Dict[str, Dict[str, Any]] = {
+    "mittelstand_office": {
+        "id": "mittelstand_office",
+        "name": "Mittelstand Internal Office Subnet",
+        "target": "192.168.10.0/24",
+        "ports": "21,22,23,80,443,6379,8080",
+        "description": "Mixed internal SME network with legacy web server, exposed Redis cache, and Telnet gateway.",
+        "assets": [
+            {
+                "host": "192.168.10.12",
+                "hostname": "intranet-web.local",
+                "port": 80,
+                "protocol": "tcp",
+                "service": "http",
+                "product": "Apache httpd",
+                "version": "2.4.49",
+                "cpe": "cpe:2.3:a:apache:http_server:2.4.49:*:*:*:*:*:*:*",
+                "extrainfo": "Unix",
+                "banner": "Server: Apache/2.4.49 (Unix)",
+                "encrypted": False,
+                "exposure": "internal-lan",
+                "nvd_status": "simulated",
+                "cves": [
+                    {
+                        "id": "CVE-2021-41773",
+                        "score": 7.5,
+                        "severity": "HIGH",
+                        "cvss_version": "3.1",
+                        "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+                        "cwe_ids": ["CWE-22"],
+                        "published": "2021-10-05",
+                        "last_modified": "2024-11-21",
+                        "references": ["https://nvd.nist.gov/vuln/detail/CVE-2021-41773"],
+                        "summary": "A flaw in path normalization in Apache HTTP Server 2.4.49 allows an attacker to map URLs to files outside directories configured by Alias-like directives...",
+                        "description": "A flaw was found in a change made to path normalization in Apache HTTP Server 2.4.49. An attacker could use a path traversal attack to map URLs to files outside the directories configured by Alias-like directives and execute CGI scripts.",
+                    },
+                    {
+                        "id": "CVE-2021-42013",
+                        "score": 9.8,
+                        "severity": "CRITICAL",
+                        "cvss_version": "3.1",
+                        "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                        "cwe_ids": ["CWE-22", "CWE-78"],
+                        "published": "2021-10-07",
+                        "last_modified": "2024-11-21",
+                        "references": ["https://nvd.nist.gov/vuln/detail/CVE-2021-42013"],
+                        "summary": "The fix for CVE-2021-41773 in Apache HTTP Server 2.4.50 was insufficient; enables remote code execution when CGI is enabled...",
+                        "description": "It was found that the fix for CVE-2021-41773 in Apache HTTP Server 2.4.50 was insufficient. An attacker could use a path traversal attack to map URLs to files outside expected directories and achieve remote code execution.",
+                    },
+                ],
+            },
+            {
+                "host": "192.168.10.15",
+                "hostname": "erp-cache.local",
+                "port": 6379,
+                "protocol": "tcp",
+                "service": "redis",
+                "product": "Redis key-value store",
+                "version": "6.2.6",
+                "cpe": "cpe:2.3:a:redis:redis:6.2.6:*:*:*:*:*:*:*",
+                "extrainfo": "",
+                "banner": "redis_version:6.2.6",
+                "encrypted": False,
+                "exposure": "internal-lan",
+                "nvd_status": "simulated",
+                "cves": [
+                    {
+                        "id": "CVE-2022-24735",
+                        "score": 7.0,
+                        "severity": "HIGH",
+                        "cvss_version": "3.1",
+                        "vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+                        "cwe_ids": ["CWE-94"],
+                        "published": "2022-04-27",
+                        "last_modified": "2024-02-14",
+                        "references": ["https://nvd.nist.gov/vuln/detail/CVE-2022-24735"],
+                        "summary": "By exploiting weaknesses in the Lua script execution environment, an attacker with access to Redis can inject Lua code that executes with elevated privileges...",
+                        "description": "Redis 6.2 prior to 6.2.7 allows attackers with Lua script access to manipulate the Lua environment and potentially bypass sandbox boundaries.",
+                    }
+                ],
+            },
+            {
+                "host": "192.168.10.20",
+                "hostname": "legacy-switch-gw.local",
+                "port": 23,
+                "protocol": "tcp",
+                "service": "telnet",
+                "product": "Linux telnetd",
+                "version": "0.17",
+                "cpe": "",
+                "extrainfo": "",
+                "banner": "Ubuntu 20.04 LTS telnetd",
+                "encrypted": False,
+                "exposure": "internal-lan",
+                "nvd_status": "simulated",
+                "cves": [],
+            },
+            {
+                "host": "192.168.10.22",
+                "hostname": "fileshare-bak.local",
+                "port": 22,
+                "protocol": "tcp",
+                "service": "ssh",
+                "product": "OpenSSH",
+                "version": "8.9p1",
+                "cpe": "cpe:2.3:a:openbsd:openssh:8.9p1:*:*:*:*:*:*:*",
+                "extrainfo": "Ubuntu Linux; protocol 2.0",
+                "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.6",
+                "encrypted": True,
+                "exposure": "internal-lan",
+                "nvd_status": "simulated",
+                "cves": [
+                    {
+                        "id": "CVE-2024-6387",
+                        "score": 8.1,
+                        "severity": "HIGH",
+                        "cvss_version": "3.1",
+                        "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                        "cwe_ids": ["CWE-362"],
+                        "published": "2024-07-01",
+                        "last_modified": "2025-01-10",
+                        "references": ["https://nvd.nist.gov/vuln/detail/CVE-2024-6387"],
+                        "summary": "regreSSHion: Signal handler race condition in OpenSSH server (sshd) on glibc-based Linux systems allows unauthenticated remote code execution...",
+                        "description": "A security regression (CVE-2006-5051) was discovered in OpenSSH's server (sshd). A signal handler race condition exists where an unauthenticated client can achieve remote code execution as root under specific timing conditions.",
+                    }
+                ],
+            },
+        ],
+    },
+    "dev_workstation": {
+        "id": "dev_workstation",
+        "name": "Engineering Host & Container Dev Stack",
+        "target": "127.0.0.1",
+        "ports": "22,2375,5432,8000,8080",
+        "description": "Localhost engineering stack with unencrypted Docker daemon and dev HTTP server.",
+        "assets": [
+            {
+                "host": "127.0.0.1",
+                "hostname": "localhost",
+                "port": 2375,
+                "protocol": "tcp",
+                "service": "docker",
+                "product": "Docker Engine API",
+                "version": "24.0.5",
+                "cpe": "cpe:2.3:a:docker:docker:24.0.5:*:*:*:*:*:*:*",
+                "extrainfo": "Unencrypted TCP socket",
+                "banner": "Docker/24.0.5 (linux)",
+                "encrypted": False,
+                "exposure": "loopback",
+                "nvd_status": "simulated",
+                "cves": [
+                    {
+                        "id": "CVE-2024-21626",
+                        "score": 8.6,
+                        "severity": "HIGH",
+                        "cvss_version": "3.1",
+                        "vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+                        "cwe_ids": ["CWE-403", "CWE-668"],
+                        "published": "2024-01-31",
+                        "last_modified": "2024-12-03",
+                        "references": ["https://nvd.nist.gov/vuln/detail/CVE-2024-21626"],
+                        "summary": "Leaky Vessels: runc container breakout vulnerability via leaked file descriptors in working directory initialization...",
+                        "description": "runc through 1.1.11 allows container breakout through internal file descriptor leaks when setting up container working directories.",
+                    }
+                ],
+            },
+            {
+                "host": "127.0.0.1",
+                "hostname": "localhost",
+                "port": 5432,
+                "protocol": "tcp",
+                "service": "postgresql",
+                "product": "PostgreSQL DB",
+                "version": "15.4",
+                "cpe": "cpe:2.3:a:postgresql:postgresql:15.4:*:*:*:*:*:*:*",
+                "extrainfo": "",
+                "banner": "PostgreSQL 15.4",
+                "encrypted": False,
+                "exposure": "loopback",
+                "nvd_status": "simulated",
+                "cves": [
+                    {
+                        "id": "CVE-2023-5869",
+                        "score": 8.8,
+                        "severity": "HIGH",
+                        "cvss_version": "3.1",
+                        "vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+                        "cwe_ids": ["CWE-190"],
+                        "published": "2023-11-09",
+                        "last_modified": "2024-08-22",
+                        "references": ["https://nvd.nist.gov/vuln/detail/CVE-2023-5869"],
+                        "summary": "Integer overflow in PostgreSQL array modification allows authenticated users to execute arbitrary code via crafted SQL...",
+                        "description": "A missing overflow check during SQL array modification in PostgreSQL 15.x before 15.5 allows an authenticated user to write arbitrary bytes to memory.",
+                    }
+                ],
+            },
+            {
+                "host": "127.0.0.1",
+                "hostname": "localhost",
+                "port": 8000,
+                "protocol": "tcp",
+                "service": "http",
+                "product": "SimpleHTTPServer",
+                "version": "0.6",
+                "cpe": "",
+                "extrainfo": "Python 3.12",
+                "banner": "Server: SimpleHTTP/0.6 Python/3.12",
+                "encrypted": False,
+                "exposure": "loopback",
+                "nvd_status": "simulated",
+                "cves": [],
+            },
+        ],
+    },
+    "hardened_dmz": {
+        "id": "hardened_dmz",
+        "name": "Hardened Production Gateway",
+        "target": "10.20.0.10",
+        "ports": "443,8443",
+        "description": "Well-segmented, TLS-enforced gateway with minimal attack surface and zero critical CVEs.",
+        "assets": [
+            {
+                "host": "10.20.0.10",
+                "hostname": "edge-gw-01.internal",
+                "port": 443,
+                "protocol": "tcp",
+                "service": "https",
+                "product": "nginx",
+                "version": "1.26.2",
+                "cpe": "cpe:2.3:a:f5:nginx:1.26.2:*:*:*:*:*:*:*",
+                "extrainfo": "TLS 1.3 enforced",
+                "banner": "HTTP/2 200",
+                "encrypted": True,
+                "exposure": "internal-lan",
+                "nvd_status": "simulated",
+                "cves": [],
+            },
+            {
+                "host": "10.20.0.10",
+                "hostname": "edge-gw-01.internal",
+                "port": 8443,
+                "protocol": "tcp",
+                "service": "https-alt",
+                "product": "Envoy Proxy",
+                "version": "1.31.2",
+                "cpe": "cpe:2.3:a:envoyproxy:envoy:1.31.2:*:*:*:*:*:*:*",
+                "extrainfo": "mTLS mesh gateway",
+                "banner": "",
+                "encrypted": True,
+                "exposure": "internal-lan",
+                "nvd_status": "simulated",
+                "cves": [],
+            },
+        ],
+    },
+}
+
+
+def list_scenarios() -> List[Dict[str, Any]]:
+    """Return scenario summaries without full CVE payloads for fast UI listing."""
+    return [
+        {
+            "id": s["id"],
+            "name": s["name"],
+            "target": s["target"],
+            "ports": s["ports"],
+            "description": s["description"],
+            "asset_count": len(s["assets"]),
+        }
+        for s in SIMULATION_SCENARIOS.values()
+    ]
+
+
+def get_scenario_assets(scenario_id: str) -> Dict[str, Any]:
+    """Return a deep copy of the requested simulation scenario."""
+    if scenario_id not in SIMULATION_SCENARIOS:
+        raise KeyError(f"Unknown simulation scenario '{scenario_id}'.")
+    return deepcopy(SIMULATION_SCENARIOS[scenario_id])
